@@ -3,16 +3,14 @@ use std::io;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     DefaultTerminal, Frame,
-    buffer::Buffer,
-    layout::{Constraint, Direction, Layout, Rect},
-    style::Stylize,
-    text::Line,
-    widgets::{Block, Paragraph, Widget},
+    layout::{Constraint, Direction, Layout},
 };
+
+pub mod ui;
+use ui::*;
 
 #[derive(Debug, Default)]
 pub struct App {
-    counter: u8,
     exit: bool,
 }
 
@@ -39,26 +37,9 @@ impl App {
             ])
             .split(area);
 
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([
-                Constraint::Percentage(30), // พื้นที่ซ้าย: 40%
-                Constraint::Percentage(70), // พื้นที่ขวา: 60%
-            ])
-            .split(main_chunks[1]);
-
-        let header = Paragraph::new(vec!["tasq-rs".into()]).left_aligned();
-
-        let left_block = Block::bordered().title("Tasks");
-        frame.render_widget(left_block, chunks[0]);
-
-        let right_block = Block::bordered().title("Detail");
-        frame.render_widget(right_block, chunks[1]);
-
-        frame.render_widget(header, main_chunks[0]);
-        frame.render_widget(self, main_chunks[2]);
-
-        // frame.render_widget(self, area);
+        frame.render_widget(&HeaderWidget, main_chunks[0]);
+        frame.render_widget(&MainWidget, main_chunks[1]);
+        frame.render_widget(&FooterWidget, main_chunks[2]);
     }
 
     fn handle_events(&mut self) -> io::Result<()> {
@@ -76,39 +57,12 @@ impl App {
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         match key_event.code {
             KeyCode::Char('q') => self.exit(),
-            KeyCode::Left => self.decrement_counter(),
-            KeyCode::Right => self.increment_counter(),
             _ => {}
         }
     }
 
     fn exit(&mut self) {
         self.exit = true;
-    }
-
-    fn increment_counter(&mut self) {
-        self.counter += 1;
-    }
-
-    fn decrement_counter(&mut self) {
-        self.counter -= 1;
-    }
-}
-
-impl Widget for &App {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let instructions = Line::from(vec![
-            " Decrement ".into(),
-            "<Left>".blue().bold(),
-            " Increment ".into(),
-            "<Right>".blue().bold(),
-            " Quit ".into(),
-            "<Q> ".blue().bold(),
-        ]);
-
-        Paragraph::new(instructions)
-            .left_aligned()
-            .render(area, buf);
     }
 }
 
