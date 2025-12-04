@@ -4,4 +4,4 @@ pub mod main_content;
 
 pub use footer::FooterWidget;
 pub use header::HeaderWidget;
-pub use main_content::MainWidget;
+pub use main_content::{MainWidget, TaskItem, TaskList};
